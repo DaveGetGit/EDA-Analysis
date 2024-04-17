@@ -17,3 +17,11 @@ def find_high_traffic_websites(news_data, top_count=10):
     traffic_per_domain = news_data.groupby(['Domain'])['RefIPs'].sum()
     traffic_per_domain = traffic_per_domain.sort_values(ascending=False)
     return traffic_per_domain.head(top_count)
+
+def find_countries_with_most_media(news_data, top_count=10):
+    """
+    Get the top countries with the most media outlets.
+    """
+    media_per_country = news_data['Country'].value_counts()
+    media_per_country = media_per_country.sort_values(ascending=False)
+    return media_per_country.head(top_count)
