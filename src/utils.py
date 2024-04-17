@@ -9,3 +9,11 @@ def find_top_websites(news_data, url_column='url', top_count=10):
 
     top_domains = domain_counts.head(top_count)
     return top_domains
+
+def find_high_traffic_websites(news_data, top_count=10):
+    """
+    Get websites with high reference IPs (assuming the IPs are the number of traffic).
+    """
+    traffic_per_domain = news_data.groupby(['Domain'])['RefIPs'].sum()
+    traffic_per_domain = traffic_per_domain.sort_values(ascending=False)
+    return traffic_per_domain.head(top_count)
