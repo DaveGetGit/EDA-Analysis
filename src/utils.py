@@ -111,3 +111,29 @@ def find_popular_articles(popular_countries_data):
     country_counts = Counter(all_countries)
     print(country_counts.most_common(3))
     return country_counts.most_common(10)
+
+
+def website_sentiment_distribution(data):
+    """
+    Calculate the sentiment distribution of websites based on the given data.
+
+    Args:
+        data (DataFrame): The input data containing the website information.
+
+    Returns:
+        DataFrame: The sentiment counts for each website along with mean and median values.
+    """
+    sentiment_counts = data.groupby(
+        ['source_name', 'title_sentiment']).size().unstack(fill_value=0)
+    sentiment_counts['Total'] = sentiment_counts.sum(axis=1)
+
+    # Calculate mean and median sentiment counts for each domain
+    sentiment_counts['Mean'] = sentiment_counts[[
+        'Positive', 'Neutral', 'Negative']].mean(axis=1)
+    sentiment_counts['Median'] = sentiment_counts[[
+        'Positive', 'Neutral', 'Negative']].median(axis=1)
+
+    # Display the sentiment counts along with mean and median
+    print("Sentiment counts with mean and median:")
+    print(sentiment_counts)
+    return sentiment_counts
