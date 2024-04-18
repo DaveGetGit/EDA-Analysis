@@ -6,10 +6,14 @@ This module contains utility functions for the news data analysis project.
 """
 from collections import Counter
 from multiprocessing import Pool
+from tqdm import tqdm
+from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.spatial.distance import cosine
+
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag, ne_chunk
-from tqdm import tqdm
+from nltk.corpus import stopwords
 
 
 def find_top_websites(news_data, url_column='url', top_count=10):
@@ -162,3 +166,48 @@ def website_sentiment_distribution(data):
     print("Sentiment counts with mean and median:")
     print(sentiment_counts)
     return sentiment_counts
+
+
+def keyword_extraction_and_analysis(news_data):
+    """
+    Extract keywords from news data and perform analysis.
+
+    Args:
+        news_data (DataFrame): The input data containing news information.
+    """
+
+    nltk.download('stopwords')
+    stop_words = set(stopwords.words('english'))
+    vectorizer = TfidfVectorizer(max_features=10, min_df=1)
+    results = {"title_keywords": [],
+               "content_keywords": [], "similarities": []}
+
+    for _, row in news_data.iterrows():
+        if len(results["title_keywords"]) == 100:
+            break
+
+        processed_title = [word.lower() for word in word_tokenize(row['title'])
+                           if word.lower() not in stop_words and word.isalpha()]
+        processed_content = [word.lower() for word in word_tokenize(row['content'])
+                             if word.lower() not in stop_words and word.isalpha()]
+
+        if len(processed_title) < 5 or len(processed_content) < 5:
+            continue
+
+        combined_text = ' '.join(processed_title + processed_content)
+        vectorizer.fit([combined_text])
+        tfidf_scores = vectorizer.transform([combined_text]).toarray()[0]
+        feature_names = vectorizer.get_feature_names_out()
+
+        sorted_keywords = [keyword for keyword, _ in sorted(
+            zip(feature_names, tfidf_scores), key=lambda x: x[1], reverse=True)]
+
+        if len(sorted_keywords) >= 10:
+            results["title_keywords"].append(sorted_keywords[:5])
+            results["content_keywords"].append(sorted_keywords[5:10])
+            similarity = 1 - cosine(tfidf_scores[:5], tfidf_scores[5:10])
+            results["similarities"].append(similarity)
+        else:
+            print('can not calculate similarity on unbalanced keywords')
+
+    return results["title_keywords"], results["content_keywords"], results["similarities"]
