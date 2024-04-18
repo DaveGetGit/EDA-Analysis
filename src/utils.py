@@ -137,3 +137,9 @@ def website_sentiment_distribution(data):
     print("Sentiment counts with mean and median:")
     print(sentiment_counts)
     return sentiment_counts
+
+
+def webiste_sentiment(data):
+    sentiment_counts = data.groupby(
+        ['source_name', 'title_sentiment']).size().unstack(fill_value=0)
+    return sentiment_counts
