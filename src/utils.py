@@ -1,8 +1,14 @@
+"""
+utils.py
+
+This module contains utility functions for the news data analysis project. 
+
+"""
+from collections import Counter
+from multiprocessing import Pool
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag, ne_chunk
-from collections import Counter
-from multiprocessing import Pool
 from tqdm import tqdm
 
 
@@ -41,17 +47,26 @@ def find_countries_with_most_media(news_data, top_count=10):
 # first download required nltk packages
 
 def download_nltk_resources():
+    """
+    Download the required nltk packages.
+    """
     nltk.download('punkt')
     nltk.download('averaged_perceptron_tagger')
     nltk.download('maxent_ne_chunker')
     nltk.download('words')
 
 
-count = 0
-
-
 def extract_countries_from_article_content(article):
-    index, row = article
+    """
+    Extract the countries mentioned in an article.
+
+    Args:
+        article (tuple): A tuple containing the index and row data of the article.
+
+    Returns:
+        list: A list of countries mentioned in the article.
+    """
+    row = article
     text = row['content']
     # tokenize every text into words
     words = word_tokenize(text)
@@ -67,6 +82,15 @@ def extract_countries_from_article_content(article):
 
 
 def find_popular_articles(popular_countries_data):
+    """
+    Find the most popular articles based on the countries mentioned in them.
+
+    Args:
+        popular_countries_data (DataFrame): The input data containing the article information.
+
+    Returns:
+        list: A list of the most popular articles.
+    """
     print('downloading nltk resources ...')
     download_nltk_resources()
     print('finished downloading resources ...')
@@ -82,7 +106,8 @@ def find_popular_articles(popular_countries_data):
     # Apply function to each article in parallel with tqdm for progress bar
     with Pool() as pool:
         results = []
-        for countries in tqdm(pool.imap(extract_countries_from_article_content, df.iterrows()), total=len(df)):
+        for countries in tqdm(pool.imap(extract_countries_from_article_content,
+                                        df.iterrows()), total=len(df)):
             # Append the results
             results.append(countries)
 
@@ -95,8 +120,7 @@ def find_popular_articles(popular_countries_data):
                 break
     print('done processing!')
     # Flatten the list of results
-    all_countries = [country for country in all_countries if country.lower(
-    ) not in [continent.lower() for continent in continents]]
+    all_countries = [country for sublist in results for country in sublist]
 
     # List of continents to filter out
     continents = ['African', 'Antarctica', 'Asia', 'Europe',
@@ -104,7 +128,8 @@ def find_popular_articles(popular_countries_data):
 
     # Filter out continents from all_countries
     all_countries = [
-        country for country in all_countries if country not in continents]
+        country for country in all_countries if country.lower() not in
+        [continent.lower() for continent in continents]]
 
     # Count occurrences of each country
     print("debug printing count...")
@@ -136,10 +161,4 @@ def website_sentiment_distribution(data):
     # Display the sentiment counts along with mean and median
     print("Sentiment counts with mean and median:")
     print(sentiment_counts)
-    return sentiment_counts
-
-
-def webiste_sentiment(data):
-    sentiment_counts = data.groupby(
-        ['source_name', 'title_sentiment']).size().unstack(fill_value=0)
     return sentiment_counts

@@ -1,4 +1,4 @@
-matplotlib==3.8.0
+matplotlib==3.5.1
 nltk==3.8.1
 pandas==1.5.3
 pick==2.2.0

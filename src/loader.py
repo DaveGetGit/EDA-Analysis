@@ -7,7 +7,7 @@ import argparse
 import pandas as pd
 
 
-class NewsDataLoader:
+class NewsDataLoader:  # pylint: disable=too-few-public-methods
     """
     A class that loads news related datasets when provided a path.
     """
@@ -21,7 +21,7 @@ class NewsDataLoader:
     def load_data(self, path):
         """
         Loads data from a CSV file at the given path.
-        
+
         Parameters:
         path (str): The path to the CSV file.
 
