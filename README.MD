@@ -14,7 +14,7 @@ You need to have Python installed on your machine. You can download Python from 
 
 1. Clone the repository
    ```
-   git clone <repository_url>
+   git clone https://github.com/DaveGetGit/EDA-Analysis.git
    ```
 2. Navigate to the project directory
    ```
